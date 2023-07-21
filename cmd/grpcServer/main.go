@@ -9,10 +9,12 @@ import (
 	"github.com/CelsoTaliatelli/go-grpc/internal/service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
-	db, err := sql.Open("sqlite3", "./db.sqlite")
+	db, err := sql.Open("sqlite3", "./category.db")
 	if err != nil {
 		panic(err)
 	}
@@ -30,7 +32,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := grpcServer.Serve(lis): err != nil {
+	if err := grpcServer.Serve(lis); err != nil {
 		panic(err)
 	}
 }
