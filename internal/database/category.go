@@ -10,7 +10,7 @@ type Category struct {
 	db          *sql.DB
 	ID          string
 	Name        string
-	Description *string
+	Description string
 }
 
 func NewCategory(db *sql.DB) *Category {
@@ -24,7 +24,7 @@ func (c *Category) Create(name string, description string) (Category, error) {
 	if err != nil {
 		return Category{}, err
 	}
-	return Category{ID: id, Name: name, Description: &description}, nil
+	return Category{ID: id, Name: name, Description: description}, nil
 }
 
 func (c *Category) FindAll() ([]Category, error) {
@@ -40,12 +40,12 @@ func (c *Category) FindAll() ([]Category, error) {
 		if err := rows.Scan(&id, &name, &description); err != nil {
 			return nil, err
 		}
-		var descriptionPtr *string
+		var descriptionPtr string
 
 		if description.Valid {
-			descriptionPtr = &description.String
+			descriptionPtr = description.String
 		} else {
-			descriptionPtr = nil
+			descriptionPtr = ""
 		}
 		categories = append(categories, Category{ID: id, Name: name, Description: descriptionPtr})
 	}
@@ -59,5 +59,5 @@ func (c *Category) FindByCourseID(courseID string) (Category, error) {
 	if err != nil {
 		return Category{}, err
 	}
-	return Category{ID: id, Name: name, Description: &description}, nil
+	return Category{ID: id, Name: name, Description: description}, nil
 }

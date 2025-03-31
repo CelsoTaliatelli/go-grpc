@@ -31,7 +31,7 @@ func (c *CategoryService) ListCategory(ctx context.Context, in *pb.Blank) (*pb.C
 		categoryResponse := &pb.Category{
 			Id:          category.ID,
 			Name:        category.Name,
-			Description: *category.Description,
+			Description: category.Description,
 		}
 		categoriesResponse = append(categoriesResponse, categoryResponse)
 	}
@@ -51,7 +51,7 @@ func (c *CategoryService) CreateCategory(ctx context.Context, in *pb.CreateCateg
 	categoryResponse := &pb.Category{
 		Id:          category.ID,
 		Name:        category.Name,
-		Description: *category.Description,
+		Description: category.Description,
 	}
 
 	return &pb.CategoryResponse{
@@ -60,7 +60,7 @@ func (c *CategoryService) CreateCategory(ctx context.Context, in *pb.CreateCateg
 
 }
 
-func (c *CategoryService) CreateCategoryRequest(stream pb.CategoryService_CreateCategoryStreamServer) error {
+func (c *CategoryService) CreateCategoryStream(stream pb.CategoryService_CreateCategoryStreamServer) error {
 	categories := &pb.CategoryList{}
 
 	for {
@@ -82,6 +82,33 @@ func (c *CategoryService) CreateCategoryRequest(stream pb.CategoryService_Create
 			Name:        categoryResult.Name,
 			Description: category.Description,
 		})
+
+	}
+}
+
+func (c *CategoryService) CreateCategoryStreamBidirectional(stream pb.CategoryService_CreateCategoryStreamBidirectionalServer) error {
+	for {
+		category, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+		categoryResult, err := c.CategoryDB.Create(category.Name, category.Description)
+		if err != nil {
+			return err
+		}
+
+		err = stream.Send(&pb.Category{
+			Id:          categoryResult.ID,
+			Name:        categoryResult.Name,
+			Description: categoryResult.Description,
+		})
+		if err != nil {
+			return err
+		}
 
 	}
 }
